@@ -1,0 +1,92 @@
+import { Button, Spinner, VerticalBox } from "std-widgets.slint";
+
+global Colors {
+    out property <brush> bluemain: @linear-gradient(90deg, #81A5C1 0%, #47647B 100%);
+}
+
+export component SetupWindow inherits Window {
+    always-on-top: true;
+    title: "OG3 Pack Updater Setup";
+    width: 470px;
+    x: 0px;
+    y: 0px;
+    height: 400px;
+
+    callback setup();
+    
+    Text {
+        color: Colors.bluemain;
+        font-italic: false;
+        font-size: 20px;
+        horizontal-alignment: TextHorizontalAlignment.center;
+        overflow: TextOverflow.clip;
+        text: "Welcome To The OG3 Pack Updater";
+        y: 20px;
+    }
+    Button {
+        checked: false;
+        colorize-icon: false;
+        primary: false;
+        text: "Get Started";
+
+        clicked => {
+            setup();
+        }
+    }
+}
+
+export component MainWindow inherits Window {
+    width: 470px;
+    height: 270px;
+    title: "The OG3 Pack Updater";
+    in-out property <bool> button_clicked: false;
+    in-out property <string> update_available: "checking";
+    in-out property <float> spinnerload: 0.0;
+    callback start();
+
+    if !button_clicked : Button {
+        text: "Check For Updates";
+        
+        clicked => {
+            button_clicked = true;
+            start();
+        }
+    }
+
+    if button_clicked && update_available == "checking" : Text {
+        text: "Checking for Updates...";
+        color: purple;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+
+    if update_available == "false" : Text {
+        text: "Already Using The Latest Version Have Fun :)";
+        color: purple;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+    VerticalBox {
+        
+    if update_available == "true" : Text {
+        text: "Update Available, Downloading...    be patient";
+        color: purple;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+
+    if update_available == "done" : Text {
+        text: "Update Installed, Have fun :)";
+        color: purple;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+
+    if update_available == "true" || update_available == "done"  : Spinner {
+        progress: spinnerload;
+        max-height: 50px;
+
+    }
+    }
+    
+}

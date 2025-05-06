@@ -1,92 +1,174 @@
-import { Button, Spinner, VerticalBox } from "std-widgets.slint";
+import { Spinner, VerticalBox, ProgressIndicator } from "std-widgets.slint";
 
 global Colors {
     out property <brush> bluemain: @linear-gradient(90deg, #81A5C1 0%, #47647B 100%);
 }
 
+import "../assets/Minecraft-Regular.otf";
+
+
+component CustomLinkButton inherits Rectangle {
+    in-out property <string> text <=> txt.text;
+    callback clicked <=> touch.clicked;
+    border-radius: root.height / 2;
+    border-width: 1px;
+    border-color: root.background.darker(25%);
+    background: transparent;
+    height: 30px;
+    width: 120px;
+    y: 350px;
+    x: 345px;
+    txt := Text {
+        x: (parent.width - self.width) / 2 + (touch.pressed ? 2px : 0);
+        color: touch.has-hover ? yellow : purple;
+        font-size: 20px;
+        font-family: "Minecraft";
+    }
+    touch := TouchArea {
+        width: parent.width;
+        height: parent.height;
+        mouse-cursor: pointer;
+    }
+}
+
+component Button inherits Rectangle {
+    in-out property <string> text <=> txt.text;
+    callback clicked <=> touch.clicked;
+    border-radius: root.height / 2;
+    border-width: 1px;
+    border-color: root.background.darker(25%);
+    background: touch.has-hover ? #575757 : #3c3c3c;
+    height: 35px;
+    width: 320px;
+    txt := Text {
+        x: (parent.width - self.width) / 2 + (touch.pressed ? 2px : 0);
+        color: touch.has-hover ? yellow : white;
+        font-size: 20px;
+        font-family: "Minecraft";
+    }
+    touch := TouchArea {
+        width: parent.width;
+        height: parent.height;
+        mouse-cursor: pointer;
+    }
+}
+
 export component SetupWindow inherits Window {
-    always-on-top: true;
+    always-on-top: false;
     title: "OG3 Pack Updater Setup";
+    icon: @image-url("../assets/OG3-Pack_updater-Logo.png");
     width: 470px;
     x: 0px;
     y: 0px;
     height: 400px;
-
+    callback sitelink();
     callback setup();
-    
-    Text {
-        color: Colors.bluemain;
-        font-italic: false;
-        font-size: 20px;
-        horizontal-alignment: TextHorizontalAlignment.center;
-        overflow: TextOverflow.clip;
-        text: "Welcome To The OG3 Pack Updater";
-        y: 20px;
+    Image {
+        source: @image-url("../assets/Updater-Title.png");
+        width: 470px;
+        height: 100px;
+        y: 10px;
     }
-    Button {
-        checked: false;
-        colorize-icon: false;
-        primary: false;
-        text: "Get Started";
 
+    Text {
+        text: "Please select the OG3 Pack directory to update:";
+        color: grey;
+        font-size: 18px;
+        horizontal-alignment: TextHorizontalAlignment.center;
+        y: 120px;
+        font-family: "Minecraft";
+    }
+
+    VerticalBox {
+        width: 460px;
+        height: 100px;
+        y: 150px;
+        Text {
+            text: "To find the Pack directory, go to the pack in Modrinth click on the three dots, and select 'Open Folder'.";
+            color: grey;
+            font-size: 15px;
+            horizontal-alignment: TextHorizontalAlignment.center;
+            font-family: "Minecraft";
+            wrap: word-wrap;
+        }
+    }
+
+    Button {
+        text: "Select OG3 Pack Directory";
+        y: 200px;
         clicked => {
             setup();
+        }
+    }
+
+    CustomLinkButton {
+        text: "og3.infy.uk";
+        clicked => {
+            sitelink();
         }
     }
 }
 
 export component MainWindow inherits Window {
     width: 470px;
-    height: 270px;
+    height: 400px;
     title: "The OG3 Pack Updater";
+    icon: @image-url("../assets/OG3-Pack_updater-Logo.png");
     in-out property <bool> button_clicked: false;
     in-out property <string> update_available: "checking";
     in-out property <float> spinnerload: 0.0;
     callback start();
-
-    if !button_clicked : Button {
+    if !button_clicked: Button {
         text: "Check For Updates";
-        
         clicked => {
             button_clicked = true;
             start();
         }
     }
-
-    if button_clicked && update_available == "checking" : Text {
-        text: "Checking for Updates...";
-        color: purple;
-        vertical-alignment: center;
-        horizontal-alignment: center;
+    Image {
+        source: @image-url("../assets/Updater-Title.png");
+        width: 470px;
+        height: 100px;
+        y: 10px;
     }
 
-    if update_available == "false" : Text {
-        text: "Already Using The Latest Version Have Fun :)";
-        color: purple;
+    if button_clicked && update_available == "checking": Text {
+        text: "Checking for Updates...";
+        color: white;
+        font-size: 20px;
         vertical-alignment: center;
         horizontal-alignment: center;
+        font-family: "Minecraft";
+    }
+    if update_available == "false": Text {
+        text: "Pack is up to date!";
+        color: green;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+        font-size: 20px;
+        font-family: "Minecraft";
     }
     VerticalBox {
-        
-    if update_available == "true" : Text {
-        text: "Update Available, Downloading...    be patient";
-        color: purple;
-        vertical-alignment: center;
-        horizontal-alignment: center;
+        if update_available == "true": Text {
+            text: "Update Available, Downloading...";
+            color: white;
+            vertical-alignment: center;
+            horizontal-alignment: center;
+            font-size: 20px;
+            font-family: "Minecraft";
+        }
+        if update_available == "done": Text {
+            text: "Update Installed!";
+            color: green;
+            font-size: 20px;
+            vertical-alignment: center;
+            horizontal-alignment: center;
+            font-family: "Minecraft";
+        }
+        if update_available == "true" || update_available == "done": ProgressIndicator {
+            progress: spinnerload;
+            max-height: 50px;
+            max-width: 50px;
+        }
     }
-
-    if update_available == "done" : Text {
-        text: "Update Installed, Have fun :)";
-        color: purple;
-        vertical-alignment: center;
-        horizontal-alignment: center;
-    }
-
-    if update_available == "true" || update_available == "done"  : Spinner {
-        progress: spinnerload;
-        max-height: 50px;
-
-    }
-    }
-    
 }

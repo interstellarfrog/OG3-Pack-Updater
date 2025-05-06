@@ -4,8 +4,8 @@ extern crate winapi;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use slint::SharedString;
 use slint::ComponentHandle;
+use slint::SharedString;
 use std::fs;
 use std::fs::File;
 use std::io::BufReader;
@@ -13,8 +13,8 @@ use std::io::Cursor;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::thread;
-use zip::ZipArchive;
 use winapi::um::winuser::{MessageBeep, MB_OK};
+use zip::ZipArchive;
 
 slint::include_modules!();
 
@@ -82,7 +82,7 @@ fn main() {
                     serde_json::to_writer_pretty(file, &config).unwrap();
                     println!("wrote to file");
 
-                    slint::invoke_from_event_loop(move ||  {
+                    slint::invoke_from_event_loop(move || {
                         println!("inside event loop");
 
                         println!("got lock");
@@ -92,24 +92,18 @@ fn main() {
                             .unwrap()
                             .window()
                             .dispatch_event(slint::platform::WindowEvent::CloseRequested);
-
                     })
                     .unwrap();
                 } // else do nothing
-
             });
         });
 
         setup.on_sitelink(move || {
-
             let _ = open::that("https://og3.infy.uk/");
-
         });
 
         setup.run().unwrap();
     }
-
-    
 
     let mainwindow = MainWindow::new().unwrap();
     let main_weak = mainwindow.as_weak();

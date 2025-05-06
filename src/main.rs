@@ -100,6 +100,12 @@ fn main() {
             });
         });
 
+        setup.on_sitelink(move || {
+
+            let _ = open::that("https://og3.infy.uk/");
+
+        });
+
         setup.run().unwrap();
     }
     let mainwindow = MainWindow::new().unwrap();

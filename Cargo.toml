@@ -2,7 +2,7 @@
 name = "OG3-Pack-Updater"
 version = "1.0.0"
 edition = "2021"
-authors = ["Interstellarfrog"]
+authors = ["Interstellarfrog","JMBROGB666 - NoNoNoNo666"]
 license = "MIT"
 
 [dependencies]
@@ -12,6 +12,7 @@ serde_json = "1.0"
 rfd = "0.15.3"
 reqwest = { version = "0.12.15", features = ["blocking", "json"]}
 zip = "2.6.1"
+open = "5.3.2"
 
 [build-dependencies]
 slint-build = "1.10.0"

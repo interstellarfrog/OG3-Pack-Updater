@@ -1,9 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+extern crate winapi;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use slint::SharedString;
-use slint::{ComponentHandle, Timer};
+use slint::ComponentHandle;
 use std::fs;
 use std::fs::File;
 use std::io::BufReader;
@@ -11,8 +13,8 @@ use std::io::Cursor;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::thread;
-use std::time::Duration;
 use zip::ZipArchive;
+use winapi::um::winuser::{MessageBeep, MB_OK};
 
 slint::include_modules!();
 
@@ -59,44 +61,42 @@ fn main() {
                         .pick_folder();
                 }
 
-                if pack_location.is_none() {
-                    // if they are dumb or miss click
-                    panic!()
-                }
+                if !pack_location.is_none() {
+                    // if they selected a folder, get the path
+                    let pack_location: PathBuf = pack_location.unwrap();
 
-                let pack_location: PathBuf = pack_location.unwrap();
+                    let temp_string = pack_location.display().to_string();
 
-                let temp_string = pack_location.display().to_string();
+                    let temp_string = temp_string.split(" ");
 
-                let temp_string = temp_string.split(" ");
+                    // this should be the version unless if someone did something stupid
+                    let version = temp_string.last().unwrap().to_string();
 
-                // this should be the version unless if someone did something stupid
-                let version = temp_string.last().unwrap().to_string();
+                    let config = Config {
+                        pack_location,
+                        version,
+                    };
+                    println!("pack_location: {}", config.pack_location.display());
 
-                let config = Config {
-                    pack_location,
-                    version,
-                };
-                println!("pack_location: {}", config.pack_location.display());
+                    let file = File::create("config.json").unwrap();
+                    serde_json::to_writer_pretty(file, &config).unwrap();
+                    println!("wrote to file");
 
-                let file = File::create("config.json").unwrap();
-                serde_json::to_writer_pretty(file, &config).unwrap();
-                println!("wrote to file");
+                    slint::invoke_from_event_loop(move ||  {
+                        println!("inside event loop");
 
-                slint::invoke_from_event_loop(|| {
-                    println!("inside event loop");
+                        println!("got lock");
 
-                    println!("got lock");
-
-                    Timer::single_shot(Duration::from_secs(3), move || {
                         // close window
                         setup_clone
                             .unwrap()
                             .window()
                             .dispatch_event(slint::platform::WindowEvent::CloseRequested);
-                    });
-                })
-                .unwrap();
+
+                    })
+                    .unwrap();
+                } // else do nothing
+
             });
         });
 
@@ -108,6 +108,9 @@ fn main() {
 
         setup.run().unwrap();
     }
+
+    
+
     let mainwindow = MainWindow::new().unwrap();
     let main_weak = mainwindow.as_weak();
 
@@ -380,6 +383,11 @@ fn main() {
                         .set_update_available(SharedString::from("done"))
                 })
                 .unwrap();
+
+                #[cfg(target_os = "windows")]
+                unsafe {
+                    MessageBeep(MB_OK);
+                }
             }
         });
     });

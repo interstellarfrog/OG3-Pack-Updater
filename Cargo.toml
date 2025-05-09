@@ -16,6 +16,8 @@ zip = "2.6.1"
 open = "5.3.2"
 winapi = {version = "0.3.9", features = ["winuser"]}
 winres = "0.1.12"
+sha2 = "0.10.9"
+rayon = "1.10"
 
 [build-dependencies]
 slint-build = "1.10.0"

@@ -80,7 +80,8 @@ fn compute_sha512_for_file<P: AsRef<Path>>(path: P) -> std::io::Result<String> {
         hasher.update(&buffer[..count]);
     }
 
-    Ok(format!("{:x}", hasher.finalize()).to_lowercase())
+    let digest = hasher.finalize();
+    Ok(digest.iter().map(|b| format!("{:02x}", b)).collect())
 }
 
 /// Computes hashes using [compute_sha512_for_file] for all files in a [PathBuf] that is a directory
